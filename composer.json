@@ -1,0 +1,21 @@
+{
+    "name": "onlyshow/filecoin-address",
+    "require": {
+        "php": ">=7.4",
+        "myclabs/php-enum": "^1.8",
+        "softwarewisdom/leb128": "^1.2",
+        "deemru/blake2b": "^1.0",
+        "christian-riesen/base32": "^1.6",
+        "phpseclib/phpseclib": "~3.0",
+        "mdanter/ecc": "^1.0",
+        "simplito/elliptic-php": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "FileCoin\\": "src/"
+        },
+        "files": [
+            "src/functions.php"
+        ]
+    }
+}

@@ -28,7 +28,7 @@ class Address
         $this->network = $network;
     }
 
-    public function getProtocol(): string
+    public function getProtocol(): int
     {
         return $this->protocol;
     }
@@ -43,9 +43,11 @@ class Address
         return $this->network . $this->getProtocol() . Base32::encodeUnpadded($this->getPayload() . checksum($this->str));
     }
 
-    public static function newIDAddress()
+    public static function newIDAddress(int $id)
     {
-
+        if ($id > PHP_INT_MAX) throw new \Exception('IDs must be less than 2^63');
+        //todo varint编码实现
+//        return self::newAddress(Protocol::ID, );
     }
 
     /**
@@ -56,9 +58,12 @@ class Address
         return self::newAddress(Protocol::SECP256K1, addressHash($publicKey));
     }
 
-    public static function newActorAddress()
+    /**
+     * @throws \Exception
+     */
+    public static function newActorAddress(string $data): Address
     {
-
+        return self::newAddress(Protocol::ACTOR, addressHash($data));
     }
 
     /**
@@ -66,7 +71,7 @@ class Address
      */
     public static function newBLSAddress(string $publicKey): Address
     {
-        return self::newAddress(Protocol::BLS, addressHash($publicKey));
+        return self::newAddress(Protocol::BLS, $publicKey);
     }
 
     /**
@@ -96,9 +101,10 @@ class Address
                 throw new \InvalidArgumentException('unknown protocol');
         }
 
-        $buf = string2ByteArray($protocol);
-        $buf = array_merge($buf, $payloadArr);
+//        $buf = string2ByteArray($protocol);
+//        $buf = array_merge($buf, $payloadArr);
+//        return new Address(byteArray2String($buf));
 
-        return new Address(byteArray2String($buf));
+        return new Address($protocol . $payload);
     }
 }

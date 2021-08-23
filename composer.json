@@ -5,10 +5,8 @@
         "myclabs/php-enum": "^1.8",
         "softwarewisdom/leb128": "^1.2",
         "deemru/blake2b": "^1.0",
-        "christian-riesen/base32": "^1.6",
-        "phpseclib/phpseclib": "~3.0",
-        "mdanter/ecc": "^1.0",
-        "simplito/elliptic-php": "^1.0"
+        "simplito/elliptic-php": "^1.0",
+        "paragonie/constant_time_encoding": "^2.4"
     },
     "autoload": {
         "psr-4": {

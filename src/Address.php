@@ -2,18 +2,17 @@
 
 namespace FileCoin;
 
-use Base32\Base32Hex;
 use ParagonIE\ConstantTime\Base32;
 
 class Address
 {
-    public static int $payloadHashLength = 20;
-    public static int $checksumHashLength = 4;
-    public static int $blsPublicKeyBytes = 48;
+    const PayloadHashLength = 20;
+    const ChecksumHashLength = 4;
+    const BlsPublicKeyBytes = 48;
 
-    public string $str;
-    public int $protocol;
-    public string $network;
+    private string $str;
+    private int $protocol;
+    private string $network;
 
     /**
      * @throws \Exception
@@ -29,10 +28,19 @@ class Address
         $this->network = $network;
     }
 
+    public function getProtocol(): string
+    {
+        return $this->protocol;
+    }
+
+    public function getPayload(): string
+    {
+        return substr($this->str, 1);
+    }
+
     public function __toString(): string
     {
-        $chsm = getChecksum($this->str);
-        return Base32::encode(substr($this->str, 1) . ($chsm));
+        return $this->network . $this->getProtocol() . Base32::encodeUnpadded($this->getPayload() . checksum($this->str));
     }
 
     public static function newIDAddress()
@@ -45,7 +53,6 @@ class Address
      */
     public static function newSecp256k1Address(string $publicKey): Address
     {
-        var_dump(Base32::encode(addressHash($publicKey)), 'yiek2s5wvaaecbffgabgombckm2aoj2j', string2ByteArray(Base32::decode('yiek2s5wvaaecbffgabgombckm2aoj2j')));
         return self::newAddress(Protocol::SECP256K1, addressHash($publicKey));
     }
 
@@ -68,18 +75,20 @@ class Address
      */
     private static function newAddress($protocol, $payload): Address
     {
+        $payloadArr = string2ByteArray($payload);
+
         switch ($protocol)
         {
             case Protocol::ID:
                 break;
             case Protocol::SECP256K1:
             case Protocol::ACTOR:
-                if (strlen($payload) != self::$payloadHashLength) {
+                if (count($payloadArr) != self::PayloadHashLength) {
                     throw new \InvalidArgumentException('invalid payload');
                 }
                 break;
             case Protocol::BLS:
-                if (strlen($payload) != self::$blsPublicKeyBytes) {
+                if (count($payloadArr) != self::BlsPublicKeyBytes) {
                     throw new \InvalidArgumentException('invalid payload');
                 }
                 break;
@@ -87,6 +96,9 @@ class Address
                 throw new \InvalidArgumentException('unknown protocol');
         }
 
-        return new Address($protocol . ($payload));
+        $buf = string2ByteArray($protocol);
+        $buf = array_merge($buf, $payloadArr);
+
+        return new Address(byteArray2String($buf));
     }
 }
